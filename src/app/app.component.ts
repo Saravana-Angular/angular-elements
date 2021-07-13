@@ -1,4 +1,7 @@
-import { Component } from '@angular/core';
+import { Component, Injector } from '@angular/core';
+import { DomSanitizer, SafeHtml } from '@angular/platform-browser';
+import { createCustomElement } from '@angular/elements';
+import { AlertComponent } from './alert.component';
 
 @Component({
   selector: 'app-root',
@@ -6,10 +9,12 @@ import { Component } from '@angular/core';
   styleUrls: ['./app.component.css']
 })
 export class AppComponent {
-  content: string | undefined;
-  constructor() {
+  content!: SafeHtml;
+  constructor(domSanitizer: DomSanitizer, injector: Injector) {
+    const AlertElement = createCustomElement(AlertComponent, {injector: injector});
+    customElements.define('my-alert', AlertElement)
     setTimeout(() => {
-      this.content = "<p>A paragraph!</p>";
+      this.content = domSanitizer.bypassSecurityTrustHtml("<my-alert message='Dynamically rendered'></my-alert>");
     },1000)
   }
 }
